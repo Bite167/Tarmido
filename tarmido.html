@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bloco de Comentários com Save, Delete e Contador</title>
+  <style>
+    /* CSS embutido */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #comentarios {
+      margin-top: 20px;
+    }
+
+    .comentario {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .comentario button {
+      background-color: red;
+      padding: 5px 10px;
+    }
+
+    .comentario button:hover {
+      background-color: darkred;
+    }
+  </style>
+</head>
+<body>
+  <h1>Deixe seu comentário</h1>
+
+  <form id="comentarioForm">
+    <textarea id="comentarioTexto" rows="4" placeholder="Escreva seu comentário aqui..."></textarea><br>
+    <button type="submit">Enviar</button>
+  </form>
+
+  <h2>Comentários:</h2>
+  <p id="contadorComentarios">Total de comentários: 0</p> <!-- Contador acima dos comentários -->
+  <div id="comentarios"></div>
+
+  <!-- JavaScript embutido -->
+  <script>
+    // Função para salvar os comentários no LocalStorage
+    function salvarComentarios(comentarios) {
+      localStorage.setItem('comentarios', JSON.stringify(comentarios));
+    }
+
+    // Função para carregar os comentários do LocalStorage
+    function carregarComentarios() {
+      const comentariosSalvos = localStorage.getItem('comentarios');
+      return comentariosSalvos ? JSON.parse(comentariosSalvos) : [];
+    }
+
+    // Função para exibir o número total de comentários
+    function atualizarContador() {
+      const comentarios = carregarComentarios();
+      const contadorDiv = document.getElementById('contadorComentarios');
+      contadorDiv.textContent = `Total de comentários: ${comentarios.length}`;
+    }
+
+    // Função para exibir os comentários
+    function exibirComentarios() {
+      const comentarios = carregarComentarios();
+      const comentariosDiv = document.getElementById('comentarios');
+      comentariosDiv.innerHTML = ''; // Limpa os comentários atuais
+
+      comentarios.forEach((comentario, index) => {
+        const comentarioDiv = document.createElement('div');
+        comentarioDiv.classList.add('comentario');
+        comentarioDiv.innerHTML = `
+          <span>${comentario}</span>
+          <button onclick="deletarComentario(${index})">Excluir</button>
+        `;
+        comentariosDiv.appendChild(comentarioDiv);
+      });
+
+      // Atualiza o contador de comentários
+      atualizarContador();
+    }
+
+    // Função para adicionar um novo comentário
+    document.getElementById('comentarioForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Impede o recarregamento da página
+      
+      const comentarioTexto = document.getElementById('comentarioTexto').value;
+      if (comentarioTexto.trim() === '') {
+        alert('O comentário não pode estar vazio!');
+        return;
+      }
+
+      // Carrega os comentários existentes e adiciona o novo
+      const comentarios = carregarComentarios();
+      comentarios.push(comentarioTexto);
+
+      // Salva os comentários atualizados
+      salvarComentarios(comentarios);
+
+      // Limpa o campo de texto
+      document.getElementById('comentarioTexto').value = '';
+
+      // Exibe os comentários atualizados
+      exibirComentarios();
+    });
+
+    // Função para deletar um comentário
+    function deletarComentario(index) {
+      const comentarios = carregarComentarios();
+      comentarios.splice(index, 1); // Remove o comentário pelo índice
+
+      // Salva os comentários atualizados
+      salvarComentarios(comentarios);
+
+      // Exibe os comentários atualizados
+      exibirComentarios();
+    }
+
+    // Carrega e exibe os comentários ao carregar a página
+    window.onload = function() {
+      exibirComentarios();
+    };
+  </script>
+</body>
+</html>
